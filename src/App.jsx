@@ -1,3 +1,4 @@
+import { PCFShadowMap } from 'three';
 import { Component, Suspense, useCallback, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import Scene from './game/Scene.jsx';
@@ -60,9 +61,20 @@ export default function App() {
   ].includes(game.screen);
   return (
     <ErrorBoundary>
-      <div className="app" onPointerDown={() => audio.start()}>
+      <div
+        className="app"
+        onPointerDown={() => audio.start()}
+        onPointerOver={(event) => {
+          if (
+            event.target.closest('button') &&
+            event.target.closest('button') !==
+              event.relatedTarget?.closest?.('button')
+          )
+            audio.play('hover');
+        }}
+      >
         <Canvas
-          shadows
+          shadows={{ type: PCFShadowMap }}
           dpr={[1, 1.5]}
           camera={{ position: [9, 6, 11], fov: 48, near: 0.1, far: 500 }}
           gl={{ antialias: true, powerPreference: 'high-performance' }}

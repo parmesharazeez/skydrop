@@ -1,49 +1,7 @@
 import { memo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import {
-  trees,
-  unitBox,
-  wallMaterial,
-  roofMaterial,
-  windowMaterial,
-  warmWindowMaterial,
-} from './resources.js';
-function Building({ building: b }) {
-  return (
-    <group position={[b.x, 0, b.z]} dispose={null}>
-      <mesh
-        position={[0, b.h / 2, 0]}
-        scale={[b.w, b.h, b.d]}
-        geometry={unitBox}
-        material={wallMaterial}
-        castShadow
-        receiveShadow
-      />
-      <mesh
-        position={[0, b.h + 0.15, 0]}
-        scale={[b.w + 0.3, 0.3, b.d + 0.3]}
-        geometry={unitBox}
-        material={roofMaterial}
-      />
-      {Array.from({ length: Math.floor(b.h / 2) }, (_, i) => (
-        <group key={i} position={[0, 1.5 + i * 2, 0]}>
-          <mesh
-            position={[0, 0, b.d / 2 + 0.02]}
-            scale={[b.w * 0.8, 0.18, 0.04]}
-            geometry={unitBox}
-            material={i % 3 ? windowMaterial : warmWindowMaterial}
-          />
-          <mesh
-            position={[b.w / 2 + 0.02, 0, 0]}
-            scale={[0.04, 0.18, b.d * 0.8]}
-            geometry={unitBox}
-            material={windowMaterial}
-          />
-        </group>
-      ))}
-    </group>
-  );
-}
+import Architecture from './Architecture.jsx';
+import Atmosphere, { Water } from '../rendering/Atmosphere.jsx';
 function Pad({ position, color, radius }) {
   const ring = useRef();
   useFrame(({ clock }) => {
@@ -143,11 +101,11 @@ function World({ level }) {
   return (
     <>
       <color attach="background" args={['#192d49']} />
-      <fog attach="fog" args={['#354865', 55, 150]} />
-      <hemisphereLight args={['#b9ddff', '#455369', 2.3]} />
+      <fog attach="fog" args={['#59646d', 65, 210]} />
+      <hemisphereLight args={['#bdcddd', '#3b4d4c', 1.5]} />
       <directionalLight
         position={[-25, 40, 15]}
-        intensity={3.5}
+        intensity={2.8}
         color="#ffd5ac"
         castShadow
         shadow-mapSize={[1024, 1024]}
@@ -155,40 +113,34 @@ function World({ level }) {
         shadow-camera-right={45}
         shadow-camera-top={45}
         shadow-camera-bottom={-45}
-        shadow-normalBias={0.06}
+        shadow-normalBias={0.15}
+        shadow-bias={-0.0003}
+        shadow-camera-near={1}
+        shadow-camera-far={100}
       />
-      <mesh position={[0, -3, 0]} receiveShadow>
+      <mesh position={[0, -3.12, 0]} receiveShadow>
         <cylinderGeometry args={[51, 44, 6, 8]} />
         <meshStandardMaterial color="#243f4c" />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <circleGeometry args={[49, 8]} />
-        <meshStandardMaterial color="#486469" roughness={1} />
+        <meshStandardMaterial color="#52655d" roughness={1} />
       </mesh>
-      <gridHelper
-        args={[90, 30, '#50747a', '#3e5c64']}
-        position={[0, 0.02, 0]}
-      />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -6, 0]}>
-        <planeGeometry args={[2000, 2000]} />
-        <meshStandardMaterial
-          color="#183349"
-          metalness={0.65}
-          roughness={0.35}
-        />
-      </mesh>
-      {level.buildings.map((b, i) => (
-        <Building key={i} building={b} />
-      ))}
-      {trees.map(([x, z], i) => (
-        <group key={i} position={[x, 0, z]}>
-          <mesh position={[0, 1, 0]}>
-            <cylinderGeometry args={[0.14, 0.22, 2, 6]} />
-            <meshStandardMaterial color="#6d6662" />
+      <Architecture level={level} />
+      <Water />
+      {[-1, 1].map((side) => (
+        <group key={side}>
+          <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[side * 11, 0.025, 0]}
+            receiveShadow
+          >
+            <planeGeometry args={[5, 76]} />
+            <meshStandardMaterial color="#283c43" roughness={0.95} />
           </mesh>
-          <mesh position={[0, 2.8, 0]} castShadow>
-            <coneGeometry args={[1.1, 3.6, 7]} />
-            <meshStandardMaterial color="#2b776f" />
+          <mesh position={[side * 13.7, 0.12, 0]}>
+            <boxGeometry args={[0.2, 0.2, 76]} />
+            <meshStandardMaterial color="#89958d" />
           </mesh>
         </group>
       ))}
@@ -198,26 +150,8 @@ function World({ level }) {
           <Pad position={r.target} radius={level.radius} color="#39f59b" />
         </group>
       ))}
-      {Array.from({ length: 16 }, (_, i) => (
-        <mesh
-          key={i}
-          position={[
-            Math.sin(i * 3) * 110,
-            36 + (i % 3) * 6,
-            Math.cos(i * 3) * 110,
-          ]}
-          scale={[15, 2, 5]}
-        >
-          <icosahedronGeometry args={[1, 2]} />
-          <meshStandardMaterial color="#b2a7b3" transparent opacity={0.25} />
-        </mesh>
-      ))}
-      <mesh position={[-100, 35, -140]}>
-        <sphereGeometry args={[14, 32, 20]} />
-        <meshBasicMaterial color="#ffcb9d" />
-      </mesh>
+      <Atmosphere />
     </>
   );
 }
-
 export default memo(World);

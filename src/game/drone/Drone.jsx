@@ -19,14 +19,23 @@ function Rotor({ x, z }) {
         <cylinderGeometry args={[0.13, 0.16, 0.25, 12]} />
         <meshStandardMaterial color="#172534" />
       </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.18, 0]}>
+        <circleGeometry args={[0.56, 32]} />
+        <meshBasicMaterial
+          color="#c1d7e1"
+          transparent
+          opacity={0.07}
+          depthWrite={false}
+        />
+      </mesh>
       <group ref={rotor} position={[0, 0.17, 0]}>
         <mesh>
           <boxGeometry args={[1.12, 0.035, 0.12]} />
-          <meshStandardMaterial color="#c8e8ee" />
+          <meshStandardMaterial color="#a9bec8" transparent opacity={0.48} />
         </mesh>
         <mesh rotation={[0, Math.PI / 2, 0]}>
           <boxGeometry args={[1.12, 0.035, 0.12]} />
-          <meshStandardMaterial color="#c8e8ee" />
+          <meshStandardMaterial color="#a9bec8" transparent opacity={0.48} />
         </mesh>
       </group>
       <mesh position={[0, -0.17, 0]}>
@@ -53,6 +62,25 @@ export default function Drone({ game, preview = false }) {
   });
   return (
     <group ref={drone}>
+      <mesh position={[0, 0.055, -0.61]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.19, 0.035, 8, 24]} />
+        <meshStandardMaterial
+          color="#111e29"
+          metalness={0.7}
+          roughness={0.25}
+        />
+      </mesh>
+      {[-1, 1].map((side) => (
+        <group key={side} position={[side * 0.4, 0.12, 0]}>
+          {[-0.2, 0, 0.2].map((z) => (
+            <mesh key={z} position={[0, 0, z]} rotation={[0, 0, side * 0.35]}>
+              <boxGeometry args={[0.13, 0.04, 0.065]} />
+              <meshStandardMaterial color="#344955" />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
       <mesh castShadow scale={[0.78, 0.32, 1]}>
         <sphereGeometry args={[0.7, 24, 16]} />
         <meshStandardMaterial

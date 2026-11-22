@@ -1,19 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 export function Score({ value }) {
   const [display, setDisplay] = useState(value);
+  const current = useRef(value);
   useEffect(() => {
-    const timer = setInterval(
-      () =>
-        setDisplay((old) =>
-          Math.abs(value - old) < 2
-            ? value
-            : old +
-              Math.sign(value - old) *
-                Math.max(1, Math.ceil(Math.abs(value - old) * 0.25)),
-        ),
-      30,
-    );
-    return () => clearInterval(timer);
+    let frame;
+    const started = performance.now(),
+      initial = current.current;
+    const animate = (now) => {
+      const progress = Math.min(1, (now - started) / 280);
+      current.current = Math.round(
+        initial + (value - initial) * (1 - Math.pow(1 - progress, 3)),
+      );
+      setDisplay(current.current);
+      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
   }, [value]);
   return <>{String(display).padStart(4, '0')}</>;
 }

@@ -1,3 +1,4 @@
+import MainMenu from './MainMenu.jsx';
 import { levels } from '../../game/levels/levels.js';
 export default function Screens({ game, act, storageWarning }) {
   const go = (screen) => act(() => game.navigate(screen));
@@ -12,85 +13,7 @@ export default function Screens({ game, act, storageWarning }) {
       </div>
     );
   if (game.screen === 'menu')
-    return (
-      <div className="menu">
-        <header>
-          <a className="wordmark" href="#" onClick={(e) => e.preventDefault()}>
-            <span className="brand-icon">✣</span> SKYDROP
-            <span className="wordmark-dot">.</span>
-          </a>
-          <span className="build-tag">FLIGHT DIVISION / 001</span>
-          <button
-            className="sound-toggle"
-            onClick={() => act(() => (game.muted = !game.muted))}
-          >
-            {game.muted ? 'SOUND OFF' : 'SOUND ON'} <span>◖))</span>
-          </button>
-        </header>
-        <main className="hero">
-          <div className="eyebrow">
-            <span className="signal" /> YOUR NEXT MISSION IS UP THERE
-          </div>
-          <h1>
-            Small drone.
-            <br />
-            Big <span>deliveries.</span>
-          </h1>
-          <p className="tagline">Every Delivery Is A Mission.</p>
-          <p className="hero-copy">
-            Take flight above the city. Pick up, navigate,
-            <br className="desktop-break" /> and deliver before the clock runs
-            out.
-          </p>
-          <button className="primary play" onClick={() => start(1)}>
-            <span>▶</span> PLAY NOW <span>↗</span>
-          </button>
-          <div className="menu-links">
-            <button onClick={() => go('missions')}>
-              Missions <span>↗</span>
-            </button>
-            <button onClick={() => go('instructions')}>
-              How to play <span>↗</span>
-            </button>
-            <button onClick={() => go('settings')}>
-              Settings <span>↗</span>
-            </button>
-          </div>
-          <div className="best-record">
-            <span>◇</span>
-            <div>
-              <small>YOUR PERSONAL BEST</small>
-              <b>
-                {String(game.best).padStart(4, '0')} <small>PTS</small>
-              </b>
-            </div>
-            <span className="record-line" />
-          </div>
-        </main>
-        <div className="drone-label">
-          <span className="signal" /> SD–01 <span>QUADCOPTER</span>
-          <small>PRECISION DELIVERY SYSTEM</small>
-        </div>
-        <div className="menu-coordinate">
-          35° 41′ N<br />
-          139° 41′ E
-        </div>
-        <footer>
-          <span>
-            <i className="signal" /> ALL SYSTEMS READY
-          </span>
-          <span>
-            3 MISSIONS <b>/</b> ONE SKY <b>/</b> YOUR CALL.
-          </span>
-          <span>BUILT TO FLY.</span>
-        </footer>
-        {storageWarning && (
-          <div className="storage-warning">
-            Progress cannot be saved in this browser session.
-          </div>
-        )}
-      </div>
-    );
+    return <MainMenu game={game} act={act} storageWarning={storageWarning} />;
   return (
     <div className="overlay">
       <section
@@ -164,6 +87,23 @@ export default function Screens({ game, act, storageWarning }) {
         ) : game.screen === 'settings' ? (
           <>
             <h2>Make it your airspace.</h2>
+            {game.flightPerformance && (
+              <p>
+                Last flight sample: {game.flightPerformance.fps} fps ·{' '}
+                {game.flightPerformance.drawCalls} draw calls
+              </p>
+            )}
+            {game.performance && (
+              <p className="performance-readout">
+                Last render sample: {game.performance.fps} fps ·{' '}
+                {game.performance.drawCalls} draw calls ·{' '}
+                {game.performance.resolution.toFixed(1)}× resolution
+                <br />
+                <span className="muted">
+                  Resolution adjusts automatically to keep flight smooth.
+                </span>
+              </p>
+            )}
             <label className="volume-label">
               MASTER VOLUME <b>{Math.round(game.volume * 100)}%</b>
               <input

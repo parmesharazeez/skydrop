@@ -813,3 +813,27 @@ canvas {
     margin-bottom: 110px;
   }
 }
+.hud .glass {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(13, 24, 33, 0.86);
+  box-shadow: 0 4px 18px #0002;
+  border: 1px solid #bfd5e21c;
+}
+.primary {
+  background: #edf2ef;
+  color: #13252d;
+  box-shadow: none;
+  border-radius: 9px;
+}
+.primary:hover {
+  background: #fff;
+  box-shadow: none;
+}
+.overlay {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.performance-readout {
+  font-variant-numeric: tabular-nums;
+}

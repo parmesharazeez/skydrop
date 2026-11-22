@@ -2,12 +2,15 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Vector3 } from 'three';
 import Drone from './drone/Drone.jsx';
+import Studio, { Reflections } from './rendering/Studio.jsx';
+import Performance from './rendering/Performance.jsx';
 import DropIndicator from './world/DropIndicator.jsx';
 import World, { Cargo, Burst } from './world/World.jsx';
 const cameraGoal = new Vector3();
 const lookGoal = new Vector3();
 export default function Scene({ game, input, refresh }) {
   const elapsed = useRef(0);
+  const previousScreen = useRef(game.screen);
   const preview = ['menu', 'missions', 'instructions', 'settings'].includes(
     game.screen,
   );
@@ -16,7 +19,12 @@ export default function Scene({ game, input, refresh }) {
     for (let step = 0; step < steps; step++)
       game.tick(Math.min(dt, 0.25) / steps, input.current);
     elapsed.current += dt;
-    if (elapsed.current > 0.05) {
+    if (
+      game.screen !== previousScreen.current ||
+      game.events.length ||
+      (elapsed.current > 0.08 && ['playing', 'countdown'].includes(game.screen))
+    ) {
+      previousScreen.current = game.screen;
       refresh();
       elapsed.current = 0;
     }
@@ -37,30 +45,23 @@ export default function Scene({ game, input, refresh }) {
     camera.lookAt(lookGoal);
     if (preview) camera.position.y += Math.sin(clock.elapsedTime * 0.4) * 0.003;
   });
-  return preview ? (
+  return (
     <>
-      <color attach="background" args={['#080e1c']} />
-      <fog attach="fog" args={['#080e1c', 18, 65]} />
-      <hemisphereLight args={['#e1f5ff', '#214065', 3]} />
-      <directionalLight position={[5, 8, 4]} intensity={4} />
-      <pointLight position={[-3, 0, 2]} color="#00e5ff" intensity={30} />
-      <group position={[2, 0.5, 0]} scale={2}>
-        <Drone game={game} preview />
-      </group>
-      <gridHelper
-        args={[100, 60, '#244659', '#142735']}
-        position={[0, -3, 0]}
-      />
-    </>
-  ) : (
-    <>
-      <World level={game.level} />
-      <Drone game={game} />
-      {game.packages.map((cargo) => (
-        <Cargo key={`${game.level.id}-${cargo.id}`} cargo={cargo} />
-      ))}
-      <Burst game={game} />
-      <DropIndicator game={game} />
+      <Reflections />
+      <Performance game={game} />
+      {preview ? (
+        <Studio game={game} />
+      ) : (
+        <>
+          <World level={game.level} />
+          <Drone game={game} />
+          {game.packages.map((cargo) => (
+            <Cargo key={`${game.level.id}-${cargo.id}`} cargo={cargo} />
+          ))}
+          <Burst game={game} />
+          <DropIndicator game={game} />
+        </>
+      )}
     </>
   );
 }
