@@ -40,11 +40,16 @@ export function useControls(game) {
       if (e.buttons === 1 && e.target.tagName === 'CANVAS')
         input.current.cameraYaw += e.movementX * 0.005;
     };
+    const visibility = () => {
+      if (document.hidden) blur();
+    };
+    document.addEventListener('visibilitychange', visibility);
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
     window.addEventListener('blur', blur);
     window.addEventListener('pointermove', move);
     return () => {
+      document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
       window.removeEventListener('blur', blur);

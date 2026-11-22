@@ -1,34 +1,44 @@
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-const trees = Array.from({ length: 18 }, (_, i) => [
-  Math.sin(i * 2.4) * 29,
-  Math.cos(i * 2.4) * 29,
-]);
+import {
+  trees,
+  unitBox,
+  wallMaterial,
+  roofMaterial,
+  windowMaterial,
+  warmWindowMaterial,
+} from './resources.js';
 function Building({ building: b }) {
   return (
-    <group position={[b.x, 0, b.z]}>
-      <mesh position={[0, b.h / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[b.w, b.h, b.d]} />
-        <meshStandardMaterial
-          color="#243c51"
-          metalness={0.35}
-          roughness={0.55}
-        />
-      </mesh>
-      <mesh position={[0, b.h + 0.15, 0]}>
-        <boxGeometry args={[b.w + 0.3, 0.3, b.d + 0.3]} />
-        <meshStandardMaterial color="#7d9caa" />
-      </mesh>
+    <group position={[b.x, 0, b.z]} dispose={null}>
+      <mesh
+        position={[0, b.h / 2, 0]}
+        scale={[b.w, b.h, b.d]}
+        geometry={unitBox}
+        material={wallMaterial}
+        castShadow
+        receiveShadow
+      />
+      <mesh
+        position={[0, b.h + 0.15, 0]}
+        scale={[b.w + 0.3, 0.3, b.d + 0.3]}
+        geometry={unitBox}
+        material={roofMaterial}
+      />
       {Array.from({ length: Math.floor(b.h / 2) }, (_, i) => (
         <group key={i} position={[0, 1.5 + i * 2, 0]}>
-          <mesh position={[0, 0, b.d / 2 + 0.02]}>
-            <boxGeometry args={[b.w * 0.8, 0.18, 0.04]} />
-            <meshBasicMaterial color={i % 3 ? '#74aec2' : '#ffb547'} />
-          </mesh>
-          <mesh position={[b.w / 2 + 0.02, 0, 0]}>
-            <boxGeometry args={[0.04, 0.18, b.d * 0.8]} />
-            <meshBasicMaterial color="#74aec2" />
-          </mesh>
+          <mesh
+            position={[0, 0, b.d / 2 + 0.02]}
+            scale={[b.w * 0.8, 0.18, 0.04]}
+            geometry={unitBox}
+            material={i % 3 ? windowMaterial : warmWindowMaterial}
+          />
+          <mesh
+            position={[b.w / 2 + 0.02, 0, 0]}
+            scale={[0.04, 0.18, b.d * 0.8]}
+            geometry={unitBox}
+            material={windowMaterial}
+          />
         </group>
       ))}
     </group>
@@ -129,7 +139,7 @@ export function Burst({ game }) {
     </group>
   );
 }
-export default function World({ level }) {
+function World({ level }) {
   return (
     <>
       <color attach="background" args={['#192d49']} />
@@ -209,3 +219,5 @@ export default function World({ level }) {
     </>
   );
 }
+
+export default memo(World);

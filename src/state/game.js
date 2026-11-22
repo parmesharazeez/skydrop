@@ -127,15 +127,15 @@ export function createGame(saved = {}) {
         if (this.countdown <= 0) this.navigate('playing');
         return;
       }
+      if (this.burst && this.screen !== 'paused') {
+        this.burst.age += dt;
+        if (this.burst.age > 1.3) this.burst = null;
+      }
       if (this.screen !== 'playing') return;
       this.time = Math.max(0, this.time - dt);
       this.toastTime = Math.max(0, this.toastTime - dt);
       this.flash = Math.max(0, this.flash - dt);
       this.collisionCooldown = Math.max(0, this.collisionCooldown - dt);
-      if (this.burst) {
-        this.burst.age += dt;
-        if (this.burst.age > 1.3) this.burst = null;
-      }
       if (this.time <= 0) {
         this.fail('Time expired. The delivery window has closed.');
         return;
@@ -209,7 +209,7 @@ export function createGame(saved = {}) {
         if (
           !roof &&
           error <= this.level.radius &&
-          (!surface || surface[1] === route.target[1])
+          (surface ? surface[1] === route.target[1] : route.target[1] === 0)
         ) {
           cargo.status = 'delivered';
           cargo.position[1] = route.target[1] + 0.45;

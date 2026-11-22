@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Vector3 } from 'three';
 import Drone from './drone/Drone.jsx';
+import DropIndicator from './world/DropIndicator.jsx';
 import World, { Cargo, Burst } from './world/World.jsx';
 const cameraGoal = new Vector3();
 const lookGoal = new Vector3();
@@ -11,7 +12,9 @@ export default function Scene({ game, input, refresh }) {
     game.screen,
   );
   useFrame(({ camera, clock }, dt) => {
-    game.tick(dt, input.current);
+    const steps = Math.max(1, Math.ceil(Math.min(dt, 0.25) / (1 / 60)));
+    for (let step = 0; step < steps; step++)
+      game.tick(Math.min(dt, 0.25) / steps, input.current);
     elapsed.current += dt;
     if (elapsed.current > 0.05) {
       refresh();
@@ -57,6 +60,7 @@ export default function Scene({ game, input, refresh }) {
         <Cargo key={`${game.level.id}-${cargo.id}`} cargo={cargo} />
       ))}
       <Burst game={game} />
+      <DropIndicator game={game} />
     </>
   );
 }

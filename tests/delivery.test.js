@@ -97,3 +97,24 @@ test('level lock and elevated target completion', () => {
   assert.equal(g.score, 675);
   assert.equal(g.stars, 3);
 });
+test('landing below an elevated target does not count as delivery', () => {
+  const g = launch(3);
+  const cargo = g.packages[0];
+  cargo.status = 'falling';
+  cargo.position = [-19, 1, -15];
+  advance(g, 1);
+  assert.equal(g.completed, 0);
+  assert.equal(g.score, -30);
+});
+test('victory particles expire while the result screen is open', () => {
+  const g = launch();
+  g.action();
+  g.drone.position = [0, 3, -14];
+  advance(g, 0.05);
+  g.action();
+  advance(g, 0.6);
+  assert.equal(g.screen, 'complete');
+  assert.ok(g.burst);
+  advance(g, 2);
+  assert.equal(g.burst, null);
+});
