@@ -12,9 +12,21 @@ export function advanceDrone(drone, input, dt, buildings) {
       (desired[axis] - drone.velocity[axis]) * (1 - Math.exp(-7 * dt));
     drone.position[axis] += drone.velocity[axis] * dt;
   }
-  drone.position[1] = clamp(drone.position[1], 2, 28);
-  drone.position[0] = clamp(drone.position[0], -35, 35);
-  drone.position[2] = clamp(drone.position[2], -35, 35);
+  const bounds = [
+    [-35, 35],
+    [2, 28],
+    [-35, 35],
+  ];
+  for (let axis = 0; axis < 3; axis++) {
+    const [min, max] = bounds[axis];
+    drone.position[axis] = clamp(drone.position[axis], min, max);
+    if (
+      (drone.position[axis] === min && drone.velocity[axis] < 0) ||
+      (drone.position[axis] === max && drone.velocity[axis] > 0)
+    ) {
+      drone.velocity[axis] = 0;
+    }
+  }
   const [x, y, z] = drone.position;
   const hit = buildings.some(
     (b) =>

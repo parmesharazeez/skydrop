@@ -23,3 +23,26 @@ test('accelerates, brakes, clamps altitude and rejects building penetration', ()
   );
   assert.equal(drone.position[0], 0);
 });
+
+test('stops outward velocity at world bounds and responds immediately to reverse input', () => {
+  for (const [axis, bound, outward] of [
+    [0, 35, 1],
+    [0, -35, -1],
+    [1, 28, 1],
+    [1, 2, -1],
+    [2, 35, 1],
+    [2, -35, -1],
+  ]) {
+    const drone = { position: [0, 10, 0], velocity: [0, 0, 0] };
+    drone.position[axis] = bound;
+    const input = { x: 0, y: 0, z: 0 };
+    const key = ['x', 'y', 'z'][axis];
+    input[key] = outward;
+    advanceDrone(drone, input, 1 / 60, []);
+    assert.equal(drone.position[axis], bound);
+    assert.equal(drone.velocity[axis], 0);
+    input[key] = -outward;
+    advanceDrone(drone, input, 1 / 60, []);
+    assert.ok((drone.position[axis] - bound) * outward < 0);
+  }
+});
